@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraryHub - Modern Library Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        librarydark: {
+                            900: '#060f0c',
+                            800: '#0b1d16',
+                            700: '#112c22',
+                            600: '#183d2f',
+                        },
+                        emerald: {
+                            450: '#10b981',
+                            500: '#059669',
+                            600: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Inter & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0b1d16; }
+        ::-webkit-scrollbar-thumb { background: #183d2f; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+    </style>
+</head>
+<body class="bg-librarydark-900 text-white min-h-screen selection:bg-emerald-500 selection:text-white">
+
+    <!-- App Container -->
+    <div id="app" class="flex flex-col min-h-screen">
+        
+        <!-- Navbar -->
+        <header class="sticky top-0 z-50 backdrop-blur-md bg-librarydark-800/80 border-b border-emerald-500/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-900/40">
+                        <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-emerald-100 to-emerald-400 bg-clip-text text-transparent">
+                        LibraryHub
+                    </span>
+                </div>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden xl:flex items-center space-x-1">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-600 text-white shadow-md shadow-emerald-900/50 border border-emerald-400/30">
+                        <i data-lucide="compass" class="w-4 h-4"></i>
+                        <span>AI & Home</span>
+                    </button>
+                    <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60">
+                        <i data-lucide="book" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Catalog</span>
+                    </button>
+                    <button onclick="switchTab('idcard')" id="nav-idcard" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60">
+                        <i data-lucide="qr-code" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Digital Card</span>
+                    </button>
+                    <button onclick="switchTab('bookshelf')" id="nav-bookshelf" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60">
+                        <i data-lucide="box" class="w-4 h-4 text-emerald-400"></i>
+                        <span>3D Bookshelf</span>
+                    </button>
+                    <button onclick="switchTab('seats')" id="nav-seats" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60">
+                        <i data-lucide="grid" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Study Desks</span>
+                    </button>
+                    <button onclick="switchTab('exchange')" id="nav-exchange" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60">
+                        <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+                        <span>P2P Exchange</span>
+                    </button>
+                    <button onclick="switchTab('admin')" id="nav-admin" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Admin Dashboard</span>
+                    </button>
+                </nav>
+
+                <!-- Role Switcher & Mobile toggle -->
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center space-x-2 bg-librarydark-700/80 px-3 py-1.5 rounded-xl border border-emerald-500/30 text-xs">
+                        <span class="text-gray-400">Role:</span>
+                        <select id="roleSelector" onchange="handleRoleChange(this.value)" class="bg-transparent text-emerald-400 font-semibold focus:outline-none cursor-pointer">
+                            <option value="Student" class="bg-librarydark-800 text-white">Student (Md Rifat)</option>
+                            <option value="Admin" class="bg-librarydark-800 text-white">Administrator</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- TAB 1: HOME & AI RECOMMENDATIONS -->
+            <div id="tab-home" class="tab-content space-y-8">
+                <!-- Hero Banner -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-librarydark-800 via-librarydark-700 to-emerald-950 p-8 sm:p-12 border border-emerald-500/30 shadow-2xl">
+                    <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10 max-w-2xl space-y-4">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold tracking-wider uppercase">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            <span>AI Neural Book Curator</span>
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                            Smart Knowledge, <span class="text-emerald-400" id="welcomeUserTitle">Md Rifat</span>
+                        </h1>
+                        <p class="text-gray-300 text-base sm:text-lg">
+                            Our deep-learning engine analyzes your recent reading history and academic milestones to curate the ideal textbooks for your research.
+                        </p>
+                        <div class="pt-2 flex flex-wrap gap-3">
+                            <button onclick="switchTab('catalog')" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-lg shadow-emerald-900/50 transition-all flex items-center space-x-2">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <span>Browse Catalog</span>
+                            </button>
+                            <button onclick="switchTab('idcard')" class="px-6 py-3 rounded-xl bg-librarydark-700 hover:bg-librarydark-600 text-emerald-300 border border-emerald-500/30 font-medium transition-all flex items-center space-x-2">
+                                <i data-lucide="qr-code" class="w-4 h-4"></i>
+                                <span>View Digital ID</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overdue Alerts Widget (Automated Fine System simulation) -->
+                <div id="overdueAlertBox" class="hidden bg-rose-950/40 border border-rose-500/30 rounded-2xl p-5 flex items-center justify-between shadow-xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-400">
+                            <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-rose-300">Overdue Book Fine Notice</h4>
+                            <p class="text-xs text-gray-300" id="overdueNoticeText">You have 1 overdue book with an active fine of ৳50 accumulating daily.</p>
+                        </div>
+                    </div>
+                    <button onclick="payFine()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-xl shadow-md transition-all">
+                        Pay Fine (৳50)
+                    </button>
+                </div>
+
+                <!-- AI Recommendations Grid -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="book-marked" class="w-5 h-5 text-emerald-400"></i>
+                            <span>Recommended For Your Study Path</span>
+                        </h2>
+                        <span class="text-xs text-emerald-400 bg-emerald-950 px-3 py-1 rounded-full border border-emerald-800">98% Match Score</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="aiRecommendationsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: ADVANCED CATALOG & SEARCH -->
+            <div id="tab-catalog" class="tab-content hidden space-y-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="relative w-full md:w-96">
+                        <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-gray-400"></i>
+                        <input type="text" id="searchInput" oninput="filterCatalog()" placeholder="Search by title, author, or ISBN..." class="w-full bg-librarydark-800 border border-emerald-500/30 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 text-sm">
+                    </div>
+                    <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0" id="categoryFilterButtons">
+                        <button onclick="setCategoryFilter('All')" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-600 text-white transition-all whitespace-nowrap">All</button>
+                        <button onclick="setCategoryFilter('Programming')" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-librarydark-800 text-gray-300 hover:bg-librarydark-700 transition-all whitespace-nowrap">Programming</button>
+                        <button onclick="setCategoryFilter('Science')" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-librarydark-800 text-gray-300 hover:bg-librarydark-700 transition-all whitespace-nowrap">Science</button>
+                        <button onclick="setCategoryFilter('Fiction')" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-librarydark-800 text-gray-300 hover:bg-librarydark-700 transition-all whitespace-nowrap">Fiction</button>
+                        <button onclick="setCategoryFilter('Academic')" class="cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-librarydark-800 text-gray-300 hover:bg-librarydark-700 transition-all whitespace-nowrap">Academic</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="catalogGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 3: DIGITAL ID CARD & QR -->
+            <div id="tab-idcard" class="tab-content hidden space-y-6">
+                <div class="max-w-md mx-auto space-y-6">
+                    <div class="text-center space-y-2">
+                        <h2 class="text-2xl font-bold text-white">Digital Library Card</h2>
+                        <p class="text-sm text-gray-400">Scan this QR code at library terminals for instant issue and return.</p>
+                    </div>
+
+                    <div class="relative rounded-3xl bg-gradient-to-b from-librarydark-700 to-librarydark-800 border-2 border-emerald-500/40 p-8 shadow-2xl text-center space-y-6">
+                        <div class="absolute top-4 right-4 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 border border-emerald-500/30">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            <span>Verified Member</span>
+                        </div>
+
+                        <div class="space-y-1 pt-2">
+                            <h3 class="text-2xl font-bold text-white" id="cardMemberName">Md Rifat</h3>
+                            <p class="text-emerald-400 text-sm font-medium">Computer Technology • Magura Polytechnic</p>
+                        </div>
+
+                        <!-- Simulated QR Code -->
+                        <div class="bg-white p-6 rounded-2xl inline-block shadow-inner mx-auto">
+                            <div class="w-48 h-48 bg-librarydark-900 rounded-lg flex flex-col items-center justify-center p-4 text-white space-y-2">
+                                <i data-lucide="qr-code" class="w-24 h-24 text-emerald-400"></i>
+                                <span class="text-xs font-mono text-emerald-300">ID: LIB-2026-REF</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-librarydark-600 text-left">
+                            <div>
+                                <p class="text-xs text-gray-400">Active Issued Books</p>
+                                <p class="text-lg font-bold text-white" id="cardActiveCount">2 Books</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Membership Valid</p>
+                                <p class="text-lg font-bold text-emerald-400">Dec 2027</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: 3D VIRTUAL BOOKSHELF SIMULATOR -->
+            <div id="tab-bookshelf" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Interactive 3D Virtual Bookshelf</h2>
+                        <p class="text-sm text-gray-400">Immersive spatial categorization and shelf visualization simulator.</p>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-emerald-400 text-sm">
+                        <i data-lucide="box" class="w-4 h-4"></i>
+                        <span>WebGL 3D Engine Active</span>
+                    </div>
+                </div>
+
+                <div class="relative w-full h-[450px] rounded-3xl bg-librarydark-800 border border-emerald-500/30 overflow-hidden flex flex-col items-center justify-center p-8 text-center shadow-2xl">
+                    <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] opacity-10"></div>
+                    <div class="relative z-10 space-y-4 max-w-lg">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center mx-auto text-emerald-400">
+                            <i data-lucide="layers" class="w-8 h-8 animate-pulse"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Virtual 3D Bookshelf Stacks A1 - E4</h3>
+                        <p class="text-sm text-gray-300">
+                            Explore dynamic book racks arranged by Dewey Decimal and Programming categories. Click any shelf rack to view available titles instantly.
+                        </p>
+                        <div class="flex justify-center gap-3 pt-2">
+                            <button onclick="renderShelfLevel('Programming')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition">Programming Rack (A1)</button>
+                            <button onclick="renderShelfLevel('Science')" class="px-4 py-2 rounded-xl bg-librarydark-700 hover:bg-librarydark-600 text-emerald-300 border border-emerald-500/30 text-xs font-semibold shadow transition">Science Rack (B2)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="shelfBooksDisplay" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- TAB 5: STUDY ROOM & SEAT BOOKING GRID -->
+            <div id="tab-seats" class="tab-content hidden space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Study Room & Desk Seating Grid</h2>
+                    <p class="text-sm text-gray-400">Interactive live seating layout where students can view available study desks and book time slots.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="seatsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 6: P2P STUDENT BOOK EXCHANGE MARKETPLACE -->
+            <div id="tab-exchange" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Student Textbook Exchange Marketplace</h2>
+                        <p class="text-sm text-gray-400">Peer-to-peer textbook buying, selling, and sharing corner for students.</p>
+                    </div>
+                    <button onclick="openListingModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium shadow-lg shadow-emerald-900/40 transition-all flex items-center space-x-2">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>List a Textbook</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="exchangeGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 7: ADMIN DASHBOARD -->
+            <div id="tab-admin" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-emerald-400"></i>
+                            <span>Admin Inventory & Analytics Dashboard</span>
+                        </h2>
+                        <p class="text-sm text-gray-400">Manage library stock, review student transactions, and monitor automated fine systems.</p>
+                    </div>
+                    <button onclick="addNewBookPrompt()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium shadow-lg transition">
+                        + Add New Book
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <i data-lucide="book" class="w-5 h-5"></i>
+                        </div>
+                        <p class="text-sm text-gray-400">Total Books in Inventory</p>
+                        <h3 class="text-2xl font-extrabold text-white" id="adminTotalBooks">12</h3>
+                    </div>
+                    <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <p class="text-sm text-gray-400">Registered Members</p>
+                        <h3 class="text-2xl font-extrabold text-white">1,120</h3>
+                    </div>
+                    <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                        </div>
+                        <p class="text-sm text-gray-400">Active Overdue Fines</p>
+                        <h3 class="text-2xl font-extrabold text-white" id="adminTotalFines">৳50</h3>
+                    </div>
+                    <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                            <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        </div>
+                        <p class="text-sm text-gray-400">Pending Approvals</p>
+                        <h3 class="text-2xl font-extrabold text-white">3</h3>
+                    </div>
+                </div>
+
+                <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-white">Recent Transactions & Checkouts</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-300">
+                            <thead class="bg-librarydark-700 text-xs uppercase text-emerald-400">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-l-xl">User</th>
+                                    <th class="px-4 py-3">Book Title</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3 rounded-r-xl">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-librarydark-700" id="adminTransactionsTable">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Custom Modal for Notifications / Messages -->
+    <div id="customModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-librarydark-800 border border-emerald-500/30 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 id="modalTitle" class="text-lg font-bold text-white">Notification</h3>
+            <p id="modalMessage" class="text-sm text-gray-300">Message content here...</p>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-medium transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic with LocalStorage State Persistence -->
+    <script>
+        // Initial Mock Database State
+        const defaultState = {
+            role: 'Student',
+            userName: 'Md Rifat',
+            hasFine: true,
+            fineAmount: 50,
+            books: [
+                { id: 1, title: 'Clean Code: A Handbook of Agile Software Craftsmanship', author: 'Robert C. Martin', category: 'Programming', available: 3, isbn: '978-0132350884', shelf: 'Shelf-A1', rating: 4.9 },
+                { id: 2, title: 'Designing Data-Intensive Applications', author: 'Martin Kleppmann', category: 'Programming', available: 2, isbn: '978-1449373328', shelf: 'Shelf-A2', rating: 4.8 },
+                { id: 3, title: 'Quantum Computing for Computer Scientists', author: 'Noson S. Yanofsky', category: 'Science', available: 1, isbn: '978-0521879699', shelf: 'Shelf-B1', rating: 4.7 },
+                { id: 4, title: 'Introduction to Algorithms (CLRS)', author: 'Thomas H. Cormen', category: 'Academic', available: 0, isbn: '978-0262033848', shelf: 'Shelf-C3', rating: 4.9 },
+                { id: 5, title: 'The Pragmatic Programmer', author: 'Andrew Hunt & David Thomas', category: 'Programming', available: 4, isbn: '978-0201616224', shelf: 'Shelf-A3', rating: 4.8 },
+                { id: 6, title: 'Artificial Intelligence: A Modern Approach', author: 'Stuart Russell', category: 'Science', available: 2, isbn: '978-0136042594', shelf: 'Shelf-B2', rating: 4.6 }
+            ],
+            seats: [
+                { id: 1, number: 'DESK-101', status: 'Available', slot: null },
+                { id: 2, number: 'DESK-102', status: 'Occupied', slot: '09:00 AM - 11:00 AM' },
+                { id: 3, number: 'DESK-103', status: 'Available', slot: null },
+                { id: 4, number: 'DESK-104', status: 'Reserved', slot: '02:00 PM - 04:00 PM' },
+                { id: 5, number: 'DESK-105', status: 'Available', slot: null },
+                { id: 6, number: 'DESK-106', status: 'Available', slot: null }
+            ],
+            exchangeListings: [
+                { id: 1, title: 'Data Structures & Algorithms Made Easy', author: 'Narasimha Karumanchi', price: '৳350', condition: 'Like New', seller: 'Tanvir Ahmed' },
+                { id: 2, title: 'Operating System Concepts', author: 'Silberschatz', price: '৳500', condition: 'Good', seller: 'Sabbir Hossain' }
+            ],
+            transactions: [
+                { user: 'Md Rifat', book: 'Introduction to Algorithms (CLRS)', status: 'Overdue' },
+                { user: 'Sabbir Hossain', book: 'Clean Code', status: 'Active' }
+            ]
+        };
+
+        let appState = JSON.parse(localStorage.getItem('libraryHubState')) || defaultState;
+
+        function saveState() {
+            localStorage.setItem('libraryHubState', JSON.stringify(appState));
+        }
+
+        function showModal(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.remove('hidden');
+            document.getElementById('customModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+            document.getElementById('customModal').classList.remove('flex');
+        }
+
+        let currentTab = 'home';
+        let currentCategory = 'All';
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-300 hover:text-white hover:bg-librarydark-700/60";
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-600 text-white shadow-md shadow-emerald-900/50 border border-emerald-400/30";
+            }
+            renderAll();
+        }
+
+        function handleRoleChange(role) {
+            appState.role = role;
+            saveState();
+            renderAll();
+        }
+
+        function renderAll() {
+            lucide.createIcons();
+            renderHome();
+            renderCatalog();
+            renderIDCard();
+            renderShelfLevel('Programming');
+            renderSeats();
+            renderExchange();
+            renderAdmin();
+        }
+
+        // Render Home AI Recs & Overdue Notice
+        function renderHome() {
+            const grid = document.getElementById('aiRecommendationsGrid');
+            const alertBox = document.getElementById('overdueAlertBox');
+            
+            if (appState.hasFine && appState.role === 'Student') {
+                alertBox.classList.remove('hidden');
+                alertBox.classList.add('flex');
+            } else {
+                alertBox.classList.add('hidden');
+            }
+
+            const recommended = appState.books.slice(0, 3);
+            grid.innerHTML = recommended.map(book => `
+                <div class="bg-librarydark-800/90 border border-emerald-500/20 rounded-2xl p-6 hover:border-emerald-500/50 transition-all shadow-lg flex flex-col justify-between group">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">${book.category}</span>
+                            <span class="text-xs font-semibold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">${book.rating ? book.rating * 20 + '%' : '95%'} Match</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">${book.title}</h3>
+                        <p class="text-sm text-gray-400">By ${book.author}</p>
+                    </div>
+                    <div class="pt-6 mt-6 border-t border-librarydark-700 flex items-center justify-between">
+                        <span class="text-xs text-gray-400">Location: <strong class="text-emerald-400">${book.shelf}</strong></span>
+                        <button onclick="borrowBook(${book.id})" class="text-sm font-medium text-emerald-400 hover:text-emerald-300 flex items-center space-x-1">
+                            <span>Borrow Now</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function payFine() {
+            appState.hasFine = false;
+            appState.fineAmount = 0;
+            saveState();
+            showModal("Fine Paid Successfully", "Your overdue fine has been cleared. Your digital library card is now fully reinstated.");
+            renderAll();
+        }
+
+        // Catalog & Search
+        function setCategoryFilter(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-librarydark-800 text-gray-300 hover:bg-librarydark-700 transition-all whitespace-nowrap";
+                if(btn.innerText === cat) btn.className = "cat-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-600 text-white transition-all whitespace-nowrap";
+            });
+            renderCatalog();
+        }
+
+        function filterCatalog() {
+            renderCatalog();
+        }
+
+        function renderCatalog() {
+            const query = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const grid = document.getElementById('catalogGrid');
+            
+            const filtered = appState.books.filter(b => 
+                (currentCategory === 'All' || b.category === currentCategory) &&
+                (b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query) || b.isbn.includes(query))
+            );
+
+            grid.innerHTML = filtered.map(book => `
+                <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">${book.category}</span>
+                            <span class="text-xs text-gray-400 font-mono">ISBN: ${book.isbn}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">${book.title}</h3>
+                        <p class="text-sm text-gray-400">Author: ${book.author}</p>
+                    </div>
+                    <div class="pt-4 border-t border-librarydark-700 flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${book.available > 0 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+                            ${book.available > 0 ? book.available + ' Available' : 'Checked Out'}
+                        </span>
+                        <button onclick="borrowBook(${book.id})" ${book.available === 0 ? 'disabled' : ''} class="px-4 py-2 rounded-xl text-xs font-medium ${book.available > 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow' : 'bg-librarydark-700 text-gray-500 cursor-not-allowed'}">
+                            ${book.available > 0 ? 'Issue Book' : 'Unavailable'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function borrowBook(id) {
+            const book = appState.books.find(b => b.id === id);
+            if (book && book.available > 0) {
+                book.available--;
+                appState.transactions.push({ user: appState.userName, book: book.title, status: 'Active' });
+                saveState();
+                showModal("Book Issued Successfully", `You have successfully issued "${book.title}". Please collect it from ${book.shelf}.`);
+                renderAll();
+            }
+        }
+
+        function renderIDCard() {
+            document.getElementById('cardMemberName').innerText = appState.userName;
+        }
+
+        // 3D Bookshelf Simulator
+        function renderShelfLevel(cat) {
+            const display = document.getElementById('shelfBooksDisplay');
+            const booksInCat = appState.books.filter(b => b.category === cat);
+            display.innerHTML = booksInCat.map(b => `
+                <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-5 space-y-3 shadow-lg">
+                    <span class="text-xs font-mono text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded border border-emerald-800">${b.shelf}</span>
+                    <h4 class="text-base font-bold text-white">${b.title}</h4>
+                    <p class="text-xs text-gray-400">Author: ${b.author}</p>
+                </div>
+            `).join('');
+        }
+
+        // Study Desks & Seating
+        function renderSeats() {
+            const grid = document.getElementById('seatsGrid');
+            grid.innerHTML = appState.seats.map(seat => `
+                <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="grid" class="w-5 h-5 text-emerald-400"></i>
+                            <span>${seat.number}</span>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${
+                            seat.status === 'Available' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                            seat.status === 'Occupied' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' :
+                            'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        }">${seat.status}</span>
+                    </div>
+                    <p class="text-sm text-gray-400">${seat.slot || 'No active reservation'}</p>
+                    <button onclick="bookSeat(${seat.id})" ${seat.status !== 'Available' ? 'disabled' : ''} class="w-full py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        seat.status === 'Available' ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md' : 'bg-librarydark-700 text-gray-500 cursor-not-allowed'
+                    }">
+                        ${seat.status === 'Available' ? 'Book Time Slot' : 'Desk Unavailable'}
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function bookSeat(id) {
+            const seat = appState.seats.find(s => s.id === id);
+            if (seat && seat.status === 'Available') {
+                seat.status = 'Reserved';
+                seat.slot = 'Today (2 Hour Slot)';
+                saveState();
+                showModal("Desk Reserved", `Successfully booked study desk ${seat.number}.`);
+                renderSeats();
+            }
+        }
+
+        // P2P Exchange
+        function renderExchange() {
+            const grid = document.getElementById('exchangeGrid');
+            grid.innerHTML = appState.exchangeListings.map(item => `
+                <div class="bg-librarydark-800 border border-emerald-500/20 rounded-2xl p-6 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">${item.condition}</span>
+                        <span class="text-xl font-extrabold text-emerald-400">${item.price}</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">${item.title}</h3>
+                        <p class="text-sm text-gray-400">Author: ${item.author}</p>
+                    </div>
+                    <div class="pt-4 border-t border-librarydark-700 flex items-center justify-between">
+                        <span class="text-xs text-gray-400">Seller: <strong class="text-white">${item.seller}</strong></span>
+                        <button onclick="showModal('Contact Seller', 'Opening secure chat with ${item.seller} regarding ${item.title}.')" class="px-3 py-1.5 rounded-xl bg-librarydark-700 hover:bg-librarydark-600 text-emerald-400 text-sm font-medium border border-emerald-500/30 transition">
+                            Contact Seller
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openListingModal() {
+            const title = prompt("Enter Textbook Title:");
+            if (!title) return;
+            const author = prompt("Enter Author Name:");
+            const price = prompt("Enter Price (e.g. ৳400):");
+            if (title && price) {
+                appState.exchangeListings.push({ id: Date.now(), title, author: author || 'Unknown', price, condition: 'Good', seller: appState.userName });
+                saveState();
+                renderExchange();
+                showModal("Listing Created", "Your textbook listing has been successfully published to the student exchange marketplace.");
+            }
+        }
+
+        // Admin Dashboard
+        function renderAdmin() {
+            document.getElementById('adminTotalBooks').innerText = appState.books.length;
+            document.getElementById('adminTotalFines').innerText = appState.hasFine ? '৳50' : '৳0';
+            const tbody = document.getElementById('adminTransactionsTable');
+            tbody.innerHTML = appState.transactions.map(tx => `
+                <tr class="hover:bg-librarydark-700/50">
+                    <td class="px-4 py-3 font-medium text-white">${tx.user}</td>
+                    <td class="px-4 py-3">${tx.book}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold ${tx.status === 'Overdue' ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${tx.status}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <button onclick="showModal('Transaction Log', 'Audit details for transaction verified.')" class="text-emerald-400 hover:text-emerald-300 text-xs underline">Inspect</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function addNewBookPrompt() {
+            const title = prompt("Enter Book Title:");
+            if (!title) return;
+            const author = prompt("Enter Author:");
+            const category = prompt("Enter Category (Programming, Science, Fiction, Academic):") || 'Programming';
+            appState.books.push({ id: Date.now(), title, author: author || 'Unknown', category, available: 3, isbn: '978-' + Math.floor(Math.random()*1000000000), shelf: 'Shelf-D4', rating: 4.8 });
+            saveState();
+            renderAll();
+            showModal("Book Added", "New book successfully added to library catalog inventory.");
+        }
+
+        window.onload = function() {
+            renderAll();
+        };
+    </script>
+</body>
+</html>
